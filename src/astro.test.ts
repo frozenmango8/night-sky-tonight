@@ -1,6 +1,6 @@
 import { Body, DefineStar, Observer, SearchRiseSet } from 'astronomy-engine';
 import { describe, expect, it } from 'vitest';
-import { moonPhase, nightOf, riseSet, starRiseSet, twilight } from './astro';
+import { moonPhase, nightOf, observingDate, riseSet, starRiseSet, twilight } from './astro';
 import { formatTime, zonedToUtc } from './zone';
 
 // London: 51°30'26" N, 0°07'39" W. Rise/set from a Meeus-based almanac (stjerneskinn.com), UT.
@@ -82,6 +82,18 @@ describe('stars', () => {
     const ours = starRiseSet(6.7522, -16.72, LONDON.lat, LONDON.lon, start);
     expect(library).not.toBeNull();
     expect(minutesFrom(library!.date.toISOString(), ours.rise)).toBeLessThanOrEqual(4);
+  });
+});
+
+describe('observing date', () => {
+  it('stays on yesterday until sunrise, then moves to the coming night', () => {
+    // 03:57 UTC is before the ~07:39 sunrise in London.
+    const beforeDawn = new Date('2026-11-27T03:57:00Z');
+    expect(observingDate(LONDON, beforeDawn)).toBe('2026-11-26');
+    const night = nightOf(LONDON, '2026-11-26', beforeDawn);
+    expect(night.chartTime?.toISOString()).toBe(beforeDawn.toISOString());
+    expect(observingDate(LONDON, new Date('2026-11-27T15:00:00Z'))).toBe('2026-11-27');
+    expect(observingDate(LONDON, new Date('2026-11-27T21:00:00Z'))).toBe('2026-11-27');
   });
 });
 

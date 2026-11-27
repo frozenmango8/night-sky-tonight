@@ -160,6 +160,16 @@ export function starRiseSet(
   };
 }
 
+/** Before this morning's sunrise, "tonight" is still yesterday's night. */
+export function observingDate(where: Where, now = new Date()): string {
+  const today = localDateString(now, where.zone);
+  const midnight = atLocal(today, 0, 0, where.zone);
+  const sunrise = riseSet(Body.Sun, where.lat, where.lon, midnight, 1, 0.6);
+  const noon = atLocal(today, 12, 0, where.zone);
+  if (sunrise && sunrise < noon && now < sunrise) return addDays(today, -1);
+  return today;
+}
+
 export function nightOf(where: Where, date: string, now = new Date()): Night {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('bad date');
   const obs = new Observer(where.lat, where.lon, 0);
@@ -209,7 +219,7 @@ export function nightOf(where: Where, date: string, now = new Date()): Night {
     shallow,
   };
 
-  const chartTime = pickChartTime(now, where, date, darkStart, darkEnd);
+  const chartTime = pickChartTime(now, darkStart, darkEnd);
   const phaseAt = chartTime ?? noon;
 
   if (!darkStart || !darkEnd || !chartTime) {
@@ -256,15 +266,11 @@ function moonInfo(date: Date, rise: Date | null, set: Date | null, sight: Sight 
   return { phase: phase.name, illuminated: phase.illuminated, rise, set, sight };
 }
 
-function pickChartTime(
-  now: Date,
-  where: Where,
-  date: string,
-  darkStart: Date | null,
-  darkEnd: Date | null,
-): Date | null {
+function pickChartTime(now: Date, darkStart: Date | null, darkEnd: Date | null): Date | null {
   if (!darkStart || !darkEnd) return null;
-  if (localDateString(now, where.zone) === date && now >= darkStart && now <= darkEnd) return now;
+  // The night of a date runs into the next morning, so `now` can fall inside it
+  // even when the calendar day has already rolled over.
+  if (now >= darkStart && now <= darkEnd) return now;
   const later = new Date(darkStart.getTime() + 60 * 60 * 1000);
   if (later < darkEnd) return later;
   return new Date((darkStart.getTime() + darkEnd.getTime()) / 2);

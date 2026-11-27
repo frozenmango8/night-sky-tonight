@@ -4,11 +4,42 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#131210" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='2.2' fill='%23d2b07a'/%3E%3C/svg%3E" />
     <title>Night sky tonight</title>
+    <script>
+      try {
+        if (JSON.parse(localStorage.getItem('night-sky-tonight') || '{}').red)
+          document.documentElement.classList.add('red');
+      } catch (e) {}
+    </script>
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <main id="app"></main>
+    <main>
+      <header class="top">
+        <h1>night sky tonight</h1>
+        <button type="button" id="red" aria-pressed="false">red</button>
+      </header>
+
+      <form id="where" autocomplete="off">
+        <label class="k" for="place">Place</label>
+        <input id="place" type="text" placeholder="city or 40.7, -74" spellcheck="false" autocapitalize="off" />
+        <button type="button" id="geo">your location</button>
+        <ul id="suggest" hidden></ul>
+      </form>
+      <p class="note">Location stays on this device.</p>
+      <p id="coords"></p>
+
+      <div class="when">
+        <label class="k" for="date">Date</label>
+        <input id="date" type="date" />
+        <button type="button" id="tonight">tonight</button>
+        <span id="dayname"></span>
+      </div>
+      <p id="status" role="status"></p>
+      <div id="report"></div>
+      <p class="foot">Sea-level horizon. Good to a few minutes, not for navigation.</p>
+    </main>
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

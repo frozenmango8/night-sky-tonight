@@ -332,7 +332,7 @@ function describe(
   darkEnd: Date,
   constellation?: string,
 ): Sight {
-  const upAtStart = cross.alt0 > 1;
+  const upAtStart = cross.alt0 > 0;
   const rise = !upAtStart && cross.nextRise && cross.nextRise < darkEnd ? cross.nextRise : null;
   const set =
     cross.nextSet && cross.nextSet > darkStart && cross.nextSet <= new Date(darkEnd.getTime() + 30 * 60_000)
@@ -345,7 +345,7 @@ function describe(
     return blank(name, kind, atChart, constellation);
   }
 
-  if (atChart.alt > 1) {
+  if (atChart.alt > 0) {
     const setsLater = set && set > chart ? set : null;
     return {
       name,
@@ -412,7 +412,7 @@ function blank(name: string, kind: Sight['kind'], at: AltAz, constellation?: str
 }
 
 function timetable(cross: Cross, darkStart: Date, darkEnd: Date): { rise: Date | null; set: Date | null } {
-  const upAtStart = cross.alt0 > 1;
+  const upAtStart = cross.alt0 > 0;
   const rise = upAtStart ? cross.prevRise : cross.nextRise;
   const set = cross.nextSet;
   const early = darkStart.getTime() - 26 * 60 * 60_000;

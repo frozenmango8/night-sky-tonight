@@ -159,10 +159,7 @@ export function cityLabel(city: City): string {
 export function searchCities(query: string): City[] {
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
-  const hits = CITIES.filter((c) => {
-    const label = cityLabel(c).toLowerCase();
-    return c.name.toLowerCase().includes(q) || label.includes(q);
-  });
+  const hits = CITIES.filter((c) => wordStarts(c.name, q) || wordStarts(cityLabel(c), q));
   hits.sort((a, b) => {
     const ap = a.name.toLowerCase().startsWith(q) ? 0 : 1;
     const bp = b.name.toLowerCase().startsWith(q) ? 0 : 1;
@@ -204,6 +201,10 @@ export function formatCoord(lat: number, lon: number): string {
 
 export function placeFromCoords(lat: number, lon: number): Place {
   return { name: formatCoord(lat, lon), lat, lon, zone: meridianZone(lon) };
+}
+
+function wordStarts(hay: string, q: string): boolean {
+  return hay.toLowerCase().split(/[^a-z0-9]+/).some((word) => word.startsWith(q));
 }
 
 function finite(lat: number, lon: number): { lat: number; lon: number } | null {

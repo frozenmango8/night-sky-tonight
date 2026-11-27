@@ -19,6 +19,8 @@ describe('cities', () => {
     const hits = searchCities('tokyo');
     expect(hits[0]?.name).toBe('Tokyo');
     expect(hits[0]?.zone).toBe('Asia/Tokyo');
+    expect(searchCities('lon').map((c) => c.name)).toEqual(['London']);
+    expect(searchCities('kong').map((c) => c.name)).toEqual(['Hong Kong']);
   });
 
   it('keeps both Birminghams', () => {
